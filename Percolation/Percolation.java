@@ -10,8 +10,9 @@ public class Percolation {
     // Top Row : Connect To Virtual head + adjacent opened cell
     // Last Row : Connect To Virtual Tail + adjacent opened cell
     
-    final WeightedQuickUnionUF uf;
-    final int gridSize;
+    private final WeightedQuickUnionUF uf;
+    private final WeightedQuickUnionUF uf_single; // Fix backwash problem
+    private final int gridSize;
 
     private int openSite;
     private final boolean[] openSiteArray;
@@ -26,7 +27,7 @@ public class Percolation {
         return (row - 1) * gridSize + col;
     }
 
-    final int GetHeadIndex() {
+    private final int GetHeadIndex() {
         return 0;
     }
 
@@ -36,11 +37,16 @@ public class Percolation {
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(final int n) {
+        if (n<=0){
+            throw new IllegalArgumentException("Outside prescribed range");
+        }
+
         gridSize = n;
         openSite = 0;
 
         final int arraylength = gridSize * gridSize + 2;
-        uf = new WeightedQuickUnionUF(arraylength);
+        uf                    = new WeightedQuickUnionUF(arraylength);
+        uf_single             = new WeightedQuickUnionUF(arraylength);
 
         // Init for checking which site is open
         openSiteArray = new boolean[arraylength];
@@ -65,22 +71,27 @@ public class Percolation {
         // Up
         if (row == 1) {
             uf.union(GetHeadIndex(), GetArrayIndex(row, col));
+            uf_single.union(GetHeadIndex(), GetArrayIndex(row, col));
         } else if (isOpen(row - 1, col)) {
             uf.union(GetArrayIndex(row, col), GetArrayIndex(row - 1, col));
+            uf_single.union(GetArrayIndex(row, col), GetArrayIndex(row - 1, col));
         }
         // Left
         if ((col > 1) && (isOpen(row, col - 1))) {
             uf.union(GetArrayIndex(row, col), GetArrayIndex(row, col - 1));
+            uf_single.union(GetArrayIndex(row, col), GetArrayIndex(row, col - 1));
         }
         // Right
         if ((col < gridSize) && (isOpen(row, col + 1))) {
             uf.union(GetArrayIndex(row, col), GetArrayIndex(row, col + 1));
+            uf_single.union(GetArrayIndex(row, col), GetArrayIndex(row, col + 1));
         }
         // Down
         if (row == gridSize) {
             uf.union(GetTailIndex(), GetArrayIndex(row, col));
         } else if (isOpen(row + 1, col)) {
             uf.union(GetArrayIndex(row, col), GetArrayIndex(row + 1, col));
+            uf_single.union(GetArrayIndex(row, col), GetArrayIndex(row + 1, col));
         }
     }
 
@@ -93,7 +104,7 @@ public class Percolation {
     // is the site (row, col) full?
     public boolean isFull(final int row, final int col) {
         validate(row, col);
-        return (isOpen(row, col) && (uf.find(GetHeadIndex()) == uf.find(GetArrayIndex(row, col))));
+        return (uf_single.find(GetHeadIndex()) == uf_single.find(GetArrayIndex(row, col)));
     }
 
     // returns the number of open sites
