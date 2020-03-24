@@ -4,19 +4,19 @@ public class Deque<Item> implements Iterable<Item> {
 
     private class Node{
         Item item;
-        Node next;
+        Node next; // Next Link
+        Node prev; // Previous Link
     }
 
     private Node first;
     private Node tail;
-    private Node pretail;
+
     private int size;
     
     // construct an empty deque
     public Deque(){
         first   = null;
         tail    = null;
-        pretail = null;
         size    = 0;
     }
 
@@ -31,39 +31,75 @@ public class Deque<Item> implements Iterable<Item> {
     }
 
     // add the item to the front
+    // Case 1) No item -> Asign to head , tail = head
+    // Case 2) One item -> Assign to head , tail.prev = head
+    // Case 3) At least two item -> Assign to head , head.next.prev = current
     public void addFirst(Item item){
         if (item == null) throw new IllegalArgumentException();
+        //Asign to head
         Node current = new Node();
         current.item = item;
         current.next = first;
         first = current;
+        
+        if (size == 0) tail = current;
+        if (size == 1) tail.prev = current;
+        if (size >= 2) first.next.prev = current;
+
         size++;
     }
 
     // add the item to the back
+    // Case 1) No item -> Assign to Tail, head = tail
+    // Case 2) One item -> Assign to Tail , tail.prev = head
+    // Case 3) At least two item -> Node.prev = tail , tail.next = Node, tail = Node
     public void addLast(Item item){
         if (item == null) throw new IllegalArgumentException();
         Node current = new Node();
         current.item = item;
-        tail.next = current;
+        current.prev = tail;
         tail = current;
+
+        if (size == 0) first = current;
+        if (size == 1) first.next = current;
+        if (size >= 2) tail.prev.next = current;
+
         size++;
     }
 
     // remove and return the item from the front
+    // Case 1) One item -> Change to zero item , head = null , pretail = null , tail = null
+    // Case 2) Two item -> Change to one item, head = next , tail = head (no change) . head.prev = null
     public Item removeFirst(){
         if (size == 0) throw new java.util.NoSuchElementException();
-        Item item = first.item;
-        first = first.next;
+
+        Item item       = first.item;
+
+        if (size == 1) {first = null ; tail = null;}
+        if (size >= 2) {
+            first      = first.next;
+            first.prev = null;
+        }
+
         size--;
         return item;
     }
 
     // remove and return the item from the back
-    // TODO : How to get previous node of tail ? 
+    // Case 1) One item -> Change to zero item , head = null , tail = null 
+    // Case 2) Two item -> Change to one item , pretail = head , tail = pretail head (no change)
+    // Case 3) At least three items -> tail = tail.prev
     public Item removeLast(){
         if (size == 0) throw new java.util.NoSuchElementException();
+
         Item item = tail.item;
+
+        if (size == 1) {first=null;tail=null;}
+        if (size >= 2) {
+            tail      = tail.prev;
+            tail.next = null;
+        }
+
         size--;
         return item;
     }
