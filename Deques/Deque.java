@@ -116,7 +116,7 @@ public class Deque<Item> implements Iterable<Item> {
         public void remove(){ throw new UnsupportedOperationException();}
         public Item next()
         {
-            if (current.next == null) throw new java.util.NoSuchElementException();
+            //if (current.next == null) throw new java.util.NoSuchElementException();
             Item item = current.item;
             current = current.next;
             return item;
@@ -125,12 +125,26 @@ public class Deque<Item> implements Iterable<Item> {
 
     // unit testing (required)
     public static void main(String[] args){
-        System.out.println("Hello World");
-
         // Test Case 1) Throw an IllegalArgumentException if the client calls either addFirst() or addLast() with a null argument.
         // Test Case 2) Throw a java.util.NoSuchElementException if the client calls either removeFirst() or removeLast when the deque is empty.
         // Test Case 3) Throw a java.util.NoSuchElementException if the client calls the next() method in the iterator when there are no more items to return.
         // Test Case 4) Throw an UnsupportedOperationException if the client calls the remove() method in the iterator.
+
+        Deque<Integer> TestCase1 = new Deque<Integer>();
+        TestCase1.addFirst(18);
+
+        System.out.println("Test Case 1");
+        for (Integer s : TestCase1){
+            System.out.println(s);
+        }
+
+        Deque<Integer> TestCase2 = new Deque<Integer>();
+        TestCase2.addLast(18);
+
+        System.out.println("Test Case 2");
+        for (Integer s : TestCase2){
+            System.out.println(s);
+        }
     }
 
 }
